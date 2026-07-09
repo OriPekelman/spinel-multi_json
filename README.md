@@ -23,8 +23,8 @@ path now works: `dump`/`encode`, `load`/`decode` of string-keyed data, `:pretty`
 and round-trip all match CRuby. (The original blocker — `JSON.parse` emitting `0`
 — was matz/spinel#1844, now **fixed**.)
 
-Two residual bundled-`json` bugs still block publication (see spinelgems
-`harness/findings/json-parse-residual.md`):
+Two residual bundled-`json` bugs still block publication (matz/spinel#1853; see
+spinelgems `harness/findings/json-parse-residual.md`):
 
 1. **`:symbolize_keys` ignored** — `JSON.parse(str, symbolize_names: true)` returns
    string keys under Spinel, so `load(..., :symbolize_keys => true)` doesn't symbolize.
