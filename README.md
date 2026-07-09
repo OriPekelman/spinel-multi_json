@@ -15,17 +15,24 @@ MultiJson.encode(o) # alias for dump   MultiJson.decode(s) # alias for load
 # invalid input raises MultiJson::ParseError (DecodeError / LoadError alias it)
 ```
 
-## Status: blocked on a Spinel `json` bug (not shippable yet)
+## Status: two residual Spinel `json` bugs (not shippable yet)
 
-The mirror is **correct** — its output is byte-identical to the real gem under
-CRuby (`oracle/run.sh` passes, 1/1 flows) and it compiles under Spinel. But it is
-**not publishable yet**: Spinel's bundled `json` resolves `JSON.generate` but
-**silently emits `0` for `JSON.parse` / `JSON.pretty_generate`** (engine
-`git:60070a6`), so under compilation the `load`/`decode` (and `:pretty` dump)
-paths return `0` instead of raising — a silent divergence, which would violate
-the mirror naming contract's loud-failure condition. Tracked upstream; see
-spinelgems `harness/findings/json-parse-emits-0.md`. Publish once `JSON.parse`
-resolves (or at least raises) under Spinel.
+The mirror is **correct** — byte-identical to the real gem under CRuby
+(`oracle/run.sh`, 1/1 flows) and, at engine `git:bae3dbf2`, the common compiled
+path now works: `dump`/`encode`, `load`/`decode` of string-keyed data, `:pretty`,
+and round-trip all match CRuby. (The original blocker — `JSON.parse` emitting `0`
+— was matz/spinel#1844, now **fixed**.)
+
+Two residual bundled-`json` bugs still block publication (see spinelgems
+`harness/findings/json-parse-residual.md`):
+
+1. **`:symbolize_keys` ignored** — `JSON.parse(str, symbolize_names: true)` returns
+   string keys under Spinel, so `load(..., :symbolize_keys => true)` doesn't symbolize.
+2. **error-wrapping** — the `ParserError` raised *inside* `JSON.parse` escapes the
+   mirror's `rescue ::JSON::ParserError`, so `load` of invalid input doesn't raise
+   `MultiJson::ParseError` (it leaks the raw error).
+
+Publish once both resolve.
 
 ## Exclusion ledger
 
