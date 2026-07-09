@@ -1,0 +1,21 @@
+{"a":1,"b":[1,2,3],"c":null,"d":true}
+[1,"two",3.5,false]
+"héllo €"
+{"sym":"val"}
+{
+  "x": {
+    "y": 1
+  }
+}
+{"a" => 1, "b" => [2, 3]}
+[]
+"just a string"
+42
+{"ws" => true}
+{a: 1, nested: {k: "v"}}
+{"e":1}
+{"d" => 2}
+true
+ParseError raised
+DecodeError aliases ParseError: true
+default_adapter=json_gem

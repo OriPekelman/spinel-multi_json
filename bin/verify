@@ -1,0 +1,14 @@
+#!/bin/sh
+# Local verify loop for the multi_json mirror. Prefers spin's own gate;
+# falls back to a hint while the spin CLI isn't a daily driver yet.
+set -e
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+cd "$ROOT"
+
+if command -v spin >/dev/null 2>&1; then
+  spin test
+else
+  echo "spin not on PATH — install it to run the compiled-vs-CRuby gate."
+  echo "Meanwhile, the real-gem oracle leg still runs:"
+fi
+sh oracle/run.sh

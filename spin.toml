@@ -1,0 +1,8 @@
+[package]
+name = "multi_json"
+version = "0.1.0"
+
+# Published repo is conventionally named spinel-multi_json; the package
+# *name* carries no prefix — it claims the gem's require string.
+# `spin publish` appends the [[probe]] compatibility record; do not
+# hand-write it. See matz/spinel#1753 for the mirror naming policy.
