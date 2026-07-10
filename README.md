@@ -15,24 +15,26 @@ MultiJson.encode(o) # alias for dump   MultiJson.decode(s) # alias for load
 # invalid input raises MultiJson::ParseError (DecodeError / LoadError alias it)
 ```
 
-## Status: two residual Spinel `json` bugs (not shippable yet)
+## Status: 16/17 compiled — one remaining Spinel edge (not shippable yet)
 
 The mirror is **correct** — byte-identical to the real gem under CRuby
-(`oracle/run.sh`, 1/1 flows) and, at engine `git:bae3dbf2`, the common compiled
-path now works: `dump`/`encode`, `load`/`decode` of string-keyed data, `:pretty`,
-and round-trip all match CRuby. (The original blocker — `JSON.parse` emitting `0`
-— was matz/spinel#1844, now **fixed**.)
+(`oracle/run.sh`, 1/1 flows). At engine `git:e6513188` the compiled mirror matches
+CRuby on **16/17** conformance checks. Two earlier blockers were filed and fixed:
+`JSON.parse` emitting `0` (matz/spinel#1844) and `symbolize_names:`/`rescue
+JSON::ParserError` (matz/spinel#1853).
 
-Two residual bundled-`json` bugs still block publication (matz/spinel#1853; see
-spinelgems `harness/findings/json-parse-residual.md`):
+One remaining compiler edge blocks the last check (see spinelgems
+`harness/findings/json-post-1853-edges.md`):
 
-1. **`:symbolize_keys` ignored** — `JSON.parse(str, symbolize_names: true)` returns
-   string keys under Spinel, so `load(..., :symbolize_keys => true)` doesn't symbolize.
-2. **error-wrapping** — the `ParserError` raised *inside* `JSON.parse` escapes the
-   mirror's `rescue ::JSON::ParserError`, so `load` of invalid input doesn't raise
-   `MultiJson::ParseError` (it leaks the raw error).
+- **`dump_symkey`** — `JSON.generate` of a **symbol-keyed hash** returns `0` when
+  the value flows through a poly-hash slot (a `dump` param called with both
+  string- and symbol-keyed hashes). The mirror's `dump` logic is correct (passes
+  under CRuby and compiled in isolation); it's a whole-program-inference edge.
 
-Publish once both resolve.
+(A second edge — `rescue ::JSON::ParserError` with a leading `::` not matching —
+was worked around here by using the plain `rescue JSON::ParserError` form.)
+
+Publish once the poly-hash `JSON.generate` edge resolves.
 
 ## Exclusion ledger
 

@@ -40,7 +40,11 @@ module MultiJson
   # MultiJson::ParseError. `decode` is the documented alias.
   def load(string, options = {})
     ::JSON.parse(string, symbolize_names: options[:symbolize_keys] ? true : false)
-  rescue ::JSON::ParserError => e
+  rescue JSON::ParserError => e
+    # NB: `rescue JSON::ParserError`, not `::JSON::ParserError`. Under Spinel the
+    # leading-`::` absolute form doesn't match the parser's internally-raised
+    # error (matz/spinel: the plain form was fixed for #1853, the `::` form is a
+    # remaining edge — filed separately). The plain form is unambiguous here.
     raise ParseError, e.message
   end
 
