@@ -15,26 +15,20 @@ MultiJson.encode(o) # alias for dump   MultiJson.decode(s) # alias for load
 # invalid input raises MultiJson::ParseError (DecodeError / LoadError alias it)
 ```
 
-## Status: 16/17 compiled — one remaining Spinel edge (not shippable yet)
+## Status: verified — 17/17 compiled, ready to publish
 
-The mirror is **correct** — byte-identical to the real gem under CRuby
-(`oracle/run.sh`, 1/1 flows). At engine `git:e6513188` the compiled mirror matches
-CRuby on **16/17** conformance checks. Two earlier blockers were filed and fixed:
-`JSON.parse` emitting `0` (matz/spinel#1844) and `symbolize_names:`/`rescue
-JSON::ParserError` (matz/spinel#1853).
+At engine `git:65fb6d2d` the compiled mirror is **byte-identical to CRuby on all
+17 conformance checks**, and `oracle/run.sh` matches the real multi_json gem 1/1.
+Driving this mirror surfaced and got fixed three Spinel compiler issues:
 
-One remaining compiler edge blocks the last check (matz/spinel#2009; see spinelgems
-`harness/findings/json-post-1853-edges.md`):
+- matz/spinel#1844 — `JSON.parse` silently emitting `0`.
+- matz/spinel#1853 — `symbolize_names:` ignored + `rescue JSON::ParserError` miss.
+- matz/spinel#2009 — root-anchored `rescue ::JSON::ParserError`, and a symbol-keyed
+  hash serializing as `0` through a poly-slot (a trailing-keyword collapse).
 
-- **`dump_symkey`** — `JSON.generate` of a **symbol-keyed hash** returns `0` when
-  the value flows through a poly-hash slot (a `dump` param called with both
-  string- and symbol-keyed hashes). The mirror's `dump` logic is correct (passes
-  under CRuby and compiled in isolation); it's a whole-program-inference edge.
-
-(A second edge — `rescue ::JSON::ParserError` with a leading `::` not matching —
-was worked around here by using the plain `rescue JSON::ParserError` form.)
-
-Publish once the poly-hash `JSON.generate` edge resolves.
+All resolved. The mirror's `load`/`dump` (string- and symbol-keyed), `:pretty`,
+`:symbolize_keys`, aliases, and `ParseError` wrapping all behave identically under
+CRuby and Spinel. Ready to PR into [matz/spin-index](https://github.com/matz/spin-index).
 
 ## Exclusion ledger
 
