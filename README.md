@@ -23,7 +23,7 @@ CRuby on **16/17** conformance checks. Two earlier blockers were filed and fixed
 `JSON.parse` emitting `0` (matz/spinel#1844) and `symbolize_names:`/`rescue
 JSON::ParserError` (matz/spinel#1853).
 
-One remaining compiler edge blocks the last check (see spinelgems
+One remaining compiler edge blocks the last check (matz/spinel#2009; see spinelgems
 `harness/findings/json-post-1853-edges.md`):
 
 - **`dump_symkey`** — `JSON.generate` of a **symbol-keyed hash** returns `0` when
